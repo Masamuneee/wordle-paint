@@ -4,6 +4,10 @@ Draw pixel art on your real Wordle share grid. You paint the colors you want,
 enter the day's solution word, and the tool finds real allowed guess words that
 produce exactly those colors — type them in order and your share grid becomes art.
 
+**▶ Try it live: [blog.masa.codes/wordle-paint](https://blog.masa.codes/wordle-paint/)**
+(on the hosted version the *Use today's Wordle* button uses the open-link-and-paste
+flow — run `serve.py` locally for one-click auto-fetch)
+
 ![Wordle Paint painting a diamond](docs/screenshot.png)
 
 Inspired by [KMChris/paint-on-wordle](https://github.com/KMChris/paint-on-wordle),

@@ -1,0 +1,81 @@
+name: daily-word
+
+# Keeps data/daily.json fresh so the GitHub Pages site can auto-fill the
+# day's answer. The NYT endpoint sends no CORS headers, so the browser can't
+# fetch it directly; this cron plays the same role serve.py plays locally.
+on:
+  schedule:
+    - cron: "7 */6 * * *" # every 6 hours; the date window makes timing forgiving
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/daily-word.yml"]
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch NYT words for yesterday/today/tomorrow (UTC)
+        run: |
+          python3 - <<'EOF'
+          import json, os, urllib.request
+          from datetime import datetime, timedelta, timezone
+
+          path = "data/daily.json"
+          days = {}
+          if os.path.exists(path):
+              try:
+                  days = json.load(open(path)).get("days", {})
+              except Exception:
+                  days = {}
+
+          now = datetime.now(timezone.utc)
+          for off in (-1, 0, 1):
+              d = (now + timedelta(days=off)).strftime("%Y-%m-%d")
+              try:
+                  req = urllib.request.Request(
+                      f"https://www.nytimes.com/svc/wordle/v2/{d}.json",
+                      headers={"User-Agent": "wordle-paint daily cache"})
+                  with urllib.request.urlopen(req, timeout=15) as r:
+                      days[d] = json.load(r)
+              except Exception as e:
+                  print(f"{d}: keeping previous value ({e})")
+
+          # prune entries older than a week so the file stays tiny
+          cutoff = (now - timedelta(days=7)).strftime("%Y-%m-%d")
+          days = {k: v for k, v in days.items() if k >= cutoff}
+
+          out = {"generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "days": days}
+          os.makedirs("data", exist_ok=True)
+          json.dump(out, open(path, "w"), indent=1, sort_keys=True)
+          print("cached dates:", ", ".join(sorted(days)))
+          EOF
+
+      - name: Commit if the word cache changed
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/daily.json
+          if git diff --cached --quiet -I'"generated_at"'; then
+            echo "no word changes; skipping commit"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "data: refresh daily word cache"
+            git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pushes made with GITHUB_TOKEN don't trigger the Pages build on their
+      # own — request one explicitly.
+      - name: Trigger Pages rebuild
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/${{ github.repository }}/pages/builds" -X POST || true

@@ -591,21 +591,28 @@ function localDateString() {
 }
 
 // The NYT endpoint sends no CORS headers, so a direct browser fetch is
-// normally blocked. serve.py proxies it same-origin at /api/today; try that
-// first, then direct (in case NYT ever opens CORS), then give up to the
-// manual-paste panel.
+// normally blocked. Routes, in order:
+//   1. serve.py's same-origin proxy (local runs)
+//   2. data/daily.json — a static cache a GitHub Action refreshes every few
+//      hours, so the hosted GitHub Pages site can auto-fill too
+//   3. direct NYT (in case they ever open CORS)
+// All fail -> the manual-paste panel.
 async function fetchTodayJson(date) {
-  for (const url of [`/api/today?date=${date}`, `https://www.nytimes.com/svc/wordle/v2/${date}.json`]) {
+  const tryJson = async (url, pick) => {
     try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (data && typeof data.solution === 'string') return data;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) return null;
+      const data = pick(await res.json());
+      return data && typeof data.solution === 'string' ? data : null;
     } catch {
-      // CORS block or network error — try the next route
+      return null; // CORS block or network error — try the next route
     }
-  }
-  return null;
+  };
+  return (
+    (await tryJson(`/api/today?date=${date}`, (d) => d)) ||
+    (await tryJson('./data/daily.json', (d) => d && d.days && d.days[date])) ||
+    (await tryJson(`https://www.nytimes.com/svc/wordle/v2/${date}.json`, (d) => d))
+  );
 }
 
 fetchBtn.addEventListener('click', async () => {

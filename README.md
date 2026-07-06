@@ -5,8 +5,6 @@ enter the day's solution word, and the tool finds real allowed guess words that
 produce exactly those colors — type them in order and your share grid becomes art.
 
 **▶ Try it live: [blog.masa.codes/wordle-paint](https://blog.masa.codes/wordle-paint/)**
-(on the hosted version the *Use today's Wordle* button uses the open-link-and-paste
-flow — run `serve.py` locally for one-click auto-fetch)
 
 ![Wordle Paint painting a diamond](docs/screenshot.png)
 
@@ -29,11 +27,12 @@ open-the-link-and-paste flow, because NYT blocks cross-origin browser fetches.
 
 ## How to use
 
-1. **Enter the answer word.** Click *Use today's Wordle* — with `serve.py` it
-   fills in automatically. On a plain static server the app shows you a link to
-   `https://www.nytimes.com/svc/wordle/v2/<date>.json` instead; open it and
-   paste the `"solution"` value. (Yes, this spoils today's puzzle. That's the
-   point.)
+1. **Enter the answer word.** Click *Use today's Wordle* — it fills in
+   automatically: locally via `serve.py`'s proxy, and on the hosted site via
+   `data/daily.json`, a static cache a GitHub Action refreshes every 6 hours
+   (the NYT endpoint itself blocks cross-origin browser fetches). If every
+   route fails you get a link to open and paste the `"solution"` value from.
+   (Yes, this spoils today's puzzle. That's the point.)
 2. **Paint your pattern.** Click tiles to cycle gray → yellow → green, or arm a
    brush swatch and drag to paint. Use the row stepper for shorter art.
    Or skip straight to the **meme gallery**: 35 one-click stencils — heart,

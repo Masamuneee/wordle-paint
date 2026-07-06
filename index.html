@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Paint a color pattern on a Wordle grid and find real guess words that draw it on your share grid.">
+<title>Wordle Paint</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Wordle <span class="accent">Paint</span></h1>
+  <p class="tagline">Paint a pattern, enter today's answer, get real words that draw it on your share grid.</p>
+</header>
+
+<main>
+
+  <section class="answer-section" aria-labelledby="answer-heading">
+    <h2 id="answer-heading">1 &middot; The answer word</h2>
+    <div class="answer-row">
+      <label class="visually-hidden" for="answer-input">Today's Wordle answer (5 letters)</label>
+      <input id="answer-input" type="text" maxlength="5" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="crane" aria-describedby="answer-warning">
+      <span id="answer-warning" class="badge warn" hidden>not in the guess dictionary &mdash; still usable</span>
+      <button id="fetch-today" type="button">Use today's Wordle</button>
+      <span id="puzzle-id" class="badge info" hidden></span>
+    </div>
+    <div id="fetch-fallback" class="fallback" hidden>
+      <p><strong>Couldn't fetch it automatically</strong> &mdash; the NYT endpoint doesn't allow cross-site
+      requests from the browser.</p>
+      <p>Serve the app with <code>python3 serve.py</code> instead of a plain file server and this
+      button will fetch it for you. Or open this link and paste the "solution" value into the box:<br>
+      <a id="fallback-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+    </div>
+  </section>
+
+  <section class="paint-section" aria-labelledby="paint-heading">
+    <h2 id="paint-heading">2 &middot; Paint your pattern</h2>
+    <div class="toolbar">
+      <div class="stepper" role="group" aria-label="Number of rows">
+        <button id="rows-minus" type="button" aria-label="Fewer rows">&minus;</button>
+        <span class="stepper-value" aria-live="polite"><span id="rows-value">6</span> rows</span>
+        <button id="rows-plus" type="button" aria-label="More rows">+</button>
+      </div>
+      <div class="palette" role="group" aria-label="Brush color">
+        <button class="swatch" type="button" data-color="0" aria-pressed="false"><span class="dot dot-gray" aria-hidden="true"></span>Gray</button>
+        <button class="swatch" type="button" data-color="1" aria-pressed="false"><span class="dot dot-yellow" aria-hidden="true"></span>Yellow</button>
+        <button class="swatch" type="button" data-color="2" aria-pressed="false"><span class="dot dot-green" aria-hidden="true"></span>Green</button>
+      </div>
+      <button id="clear-btn" type="button">Clear</button>
+    </div>
+    <p id="brush-hint" class="hint"></p>
+    <div id="board" class="board"></div>
+  </section>
+
+  <section class="gallery-section" aria-labelledby="gallery-heading">
+    <h2 id="gallery-heading">3 &middot; Meme gallery</h2>
+    <div class="gallery-toolbar">
+      <label class="check-option">
+        <input id="adapt-check" type="checkbox" checked>
+        Adapt unpaintable rows
+      </label>
+      <label class="check-option">
+        <input id="finish-check" type="checkbox">
+        Finish with the answer
+      </label>
+      <div class="stamp-control" role="group" aria-label="Stamp a character onto the grid">
+        <label class="visually-hidden" for="stamp-input">Character to stamp (letter, digit, ! or ?)</label>
+        <input id="stamp-input" type="text" maxlength="1" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="a">
+        <button class="stamp-swatch" type="button" data-color="1" aria-pressed="false"><span class="dot dot-yellow" aria-hidden="true"></span>Yellow</button>
+        <button class="stamp-swatch" type="button" data-color="2" aria-pressed="true"><span class="dot dot-green" aria-hidden="true"></span>Green</button>
+        <button id="stamp-btn" type="button">Stamp</button>
+      </div>
+    </div>
+    <div id="gallery-grid" class="gallery-grid"></div>
+    <p id="adapt-notice" class="hint" hidden></p>
+  </section>
+
+  <section class="output-section" aria-labelledby="output-heading">
+    <h2 id="output-heading">4 &middot; Your guesses</h2>
+    <div class="output-grid">
+      <div class="output-block">
+        <h3>Words to type, in order</h3>
+        <ol id="words-list"></ol>
+        <button id="copy-words" type="button">Copy words</button>
+      </div>
+      <div class="output-block">
+        <h3>Share preview</h3>
+        <pre id="emoji-preview" aria-label="Emoji preview of the painted grid"></pre>
+        <div><button id="copy-emoji" type="button">Copy emoji</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footnotes">
+    <h2>Notes</h2>
+    <ul>
+      <li>Works only in <strong>normal mode</strong> &mdash; hard mode forces you to reuse revealed hints, which breaks arbitrary patterns.</li>
+      <li>Type the words <strong>in order</strong>, one per row, exactly as listed.</li>
+      <li>Dictionary = the NYT allowed guess list (14,855 words). The answer box accepts any 5 letters.</li>
+      <li>Run with <code>python3 serve.py</code> &mdash; it serves the app <em>and</em> proxies the NYT
+      endpoint so "Use today's Wordle" works. Any static server works too, minus the auto-fetch.</li>
+    </ul>
+  </footer>
+
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

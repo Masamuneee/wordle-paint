@@ -1,7 +1,7 @@
 // Wordle Paint — front end. Solver logic lives in solver.mjs (see API contract).
-import { feedbackFor, findMatches, patternIssues, achievablePatterns, nearestAchievable } from './solver.mjs';
-import { PRESETS, stampChar } from './presets.js';
-import { GUESSES, COMMON } from './words.js';
+import { feedbackFor, findMatches, patternIssues, achievablePatterns, nearestAchievable } from './solver.mjs?v=2';
+import { PRESETS, stampChar } from './presets.js?v=2';
+import { GUESSES, COMMON } from './words.js?v=2';
 
 const MAX_ROWS = 6;
 const COLS = 5;

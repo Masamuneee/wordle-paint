@@ -1,12 +1,5 @@
 {
  "days": {
-  "2026-08-25": {
-   "days_since_launch": 1893,
-   "editor": "Tracy Bennett",
-   "id": 2799,
-   "print_date": "2026-08-25",
-   "solution": "click"
-  },
   "2026-08-26": {
    "days_since_launch": 1894,
    "editor": "Tracy Bennett",
@@ -62,7 +55,14 @@
    "id": 814,
    "print_date": "2026-09-02",
    "solution": "ruler"
+  },
+  "2026-09-03": {
+   "days_since_launch": 1902,
+   "editor": "Tracy Bennett",
+   "id": 1186,
+   "print_date": "2026-09-03",
+   "solution": "joist"
   }
  },
- "generated_at": "2026-09-01T04:54:28Z"
+ "generated_at": "2026-09-02T04:16:28Z"
 }
